@@ -1,0 +1,58 @@
+name: pipeline
+
+on:
+  push:
+    branches: [dev, staging, main]
+  pull_request:
+    branches: [dev, staging, main]
+  workflow_dispatch:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Stand in for tests
+        run: |
+          echo "Here the real repo runs composer install and php artisan test."
+          test -f README.md
+          echo "checks passed"
+
+  deploy-dev:
+    needs: checks
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    environment:
+      name: dev
+      url: ${{ vars.APP_URL }}
+    steps:
+      - name: Pretend deploy
+        run: |
+          echo "Would deploy commit ${{ github.sha }} to ${{ vars.APP_URL }}"
+          echo "Secret as the log shows it: ${{ secrets.DEMO_SECRET }}"
+
+  deploy-staging:
+    needs: checks
+    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: ${{ vars.APP_URL }}
+    steps:
+      - name: Pretend deploy
+        run: |
+          echo "Would deploy commit ${{ github.sha }} to ${{ vars.APP_URL }}"
+          echo "Secret as the log shows it: ${{ secrets.DEMO_SECRET }}"
+
+  deploy-production:
+    needs: checks
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ vars.APP_URL }}
+    steps:
+      - name: Pretend deploy
+        run: |
+          echo "Would deploy commit ${{ github.sha }} to ${{ vars.APP_URL }}"
+          echo "Secret as the log shows it: ${{ secrets.DEMO_SECRET }}"
